@@ -8,6 +8,7 @@ import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import datetime
+import webbrowser
 
 # .env file e-mail variables:
 # EMAIL_HOST
@@ -21,6 +22,16 @@ load_dotenv()
 # url to ticketswap page and to who it sends an email if ticket is found
 # ex; Lowlands: https://www.ticketswap.nl/event/lowlands-festival-2022/weekend-tickets/dad6ecb1-d6da-4586-b78c-508a70abf42a/1970961
 url = input("Please enter the specific ticket link from ticketswap.nl: ")
+
+# MacOS
+# chrome_path = 'open -a /Applications/Google\ Chrome.app %s'
+
+# Windows
+chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+
+# Linux
+# chrome_path = '/usr/bin/google-chrome %s'
+
 
 # user input for settings
 receiver_email = input("Enter your email to notify when ticket is found: ")
@@ -95,11 +106,11 @@ message.attach(mimed_email_msg)
 
 # GET request headers for scraping the ticketswap page
 headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Max-Age': '3600',
-    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Max-Age': '3600',
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
     }
 
 # Create a secure SSL context for email
@@ -164,12 +175,16 @@ with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
                 if ticketcount > 0:
                     print(f"{ticketcount} TICKET(S) FOUND! Link: {url}")
 
+                    # open the browser to the ticket page
+                    print("Opening webpage...")
+                    webbrowser.get(chrome_path).open(url)
+
                     # wake the fuck up bitch
                     if beepy:
                         play_sound(go_beep)
                     
                     # store it if you didnt wake up so you can feel bad about it
-                    with open("Ticketsfound.txt") as f:
+                    with open("Ticketsfound.txt", "w") as f:
                         f.write(f"{datetime.datetime.now()}, {ticketcount} ticket(s)")
 
                     # send the email to notify the user
